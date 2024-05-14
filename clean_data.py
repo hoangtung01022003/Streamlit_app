@@ -85,7 +85,7 @@ def app():
                     elif action == "Take the average values":
                         for column in selected_columns:
                             mean_value = df_original[column].mean()
-                            st.write(f"Giá trị trung bình của cột {column}: {mean_value}")
+                            st.write(f"Average value of the column {column}: {mean_value}")
             
                     # Select column
             elif cleaning_type == "Remove columns":
