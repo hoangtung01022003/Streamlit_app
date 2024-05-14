@@ -15,25 +15,6 @@ def load_csv(file, encoding='utf-8'):
     df = pd.read_csv(file, encoding=encoding)
     return df
 
-# def select_columns(df):
-#     if 'df' not in st.session_state:
-#         st.warning("Hãy tải dữ liệu trước khi thực hiện thao tác này.")
-#         return
-
-#     df = st.session_state.df
-#     # Select column
-#     selected_column = st.selectbox("Select Column:", df.columns)
-    
-#     # Confirm action
-#     if st.button("Xác nhận"):
-#         action = st.radio("Select Action:", ["Xoá", "Lấy giá trị trung bình"])
-        
-#         if action == "Xoá":
-#             df.drop(columns=[selected_column], inplace=True)
-#             st.write("Đã xoá cột", selected_column)
-#         elif action == "Lấy giá trị trung bình":
-#             mean_value = df[selected_column].mean()
-#             st.write(f"Giá trị trung bình của cột {selected_column}: {mean_value}")
 
 def process_data(df, target_column):
     # Process your data here
@@ -58,7 +39,6 @@ def app():
     st.title("CSV Uploader and Column Selector")
     st.write("Upload your CSV file:")
     uploaded_file = st.file_uploader("Choose a CSV file", type=['csv'])
-    
     if uploaded_file is not None:
         df = load_csv(uploaded_file, encoding='latin1')
         if 'processed_df' in st.session_state:
@@ -123,4 +103,3 @@ def app():
                         st.write(f"Converted columns {column}")
                     
             st.session_state.processed_df = df_original
-            
