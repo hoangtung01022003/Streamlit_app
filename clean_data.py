@@ -58,12 +58,11 @@ def app():
     st.title("CSV Uploader and Column Selector")
     st.write("Upload your CSV file:")
     uploaded_file = st.file_uploader("Choose a CSV file", type=['csv'])
-
     if uploaded_file is not None:
         df = load_csv(uploaded_file, encoding='latin1')
         if 'processed_df' in st.session_state:
             with st.expander("View Full Data (Processed)", expanded=True):
-                st.write(st.session_state.processed_df.head(5))
+                st.write(st.session_state.processed_df)
         # Save processed data to a temporary file
             temp_file = tempfile.NamedTemporaryFile(delete=False)
             df.to_csv(temp_file.name, index=False)
@@ -89,36 +88,38 @@ def app():
         cleaning_type = st.selectbox("Select Cleaning Type:", ["Handling missing values", "Remove columns", "Change data"])
         selected_columns = select_columns(df)
         # Train modelg
-
-        if cleaning_type == "Handling missing values":           
-            action = st.radio("Select Action:", ["Delete null data", "Take the average values"])
-
-            # Confirm action
-            if st.button("Confirm"):
-                if action == "Delete null data":
-                    df.dropna(subset=selected_columns, inplace=True)
-                    st.write("Delete null data success", selected_columns)
-                elif action == "Take the average values":
-                    for column in selected_columns:
-                        mean_value = df[column].mean()
-                        st.write(f"Giá trị trung bình của cột {column}: {mean_value}")
-                st.session_state.processed_df = df
-                # Select column
-        elif cleaning_type == "Remove columns":
-            if st.button("Confirm"):
-                df.drop(columns=selected_columns, inplace=True)
-                st.write("Column deleted successfully", selected_columns)
-            st.session_state.processed_df = df
+        if 'processed_df' not in st.session_state:
+            st.session_state.processed_df = df.copy()
+        if cleaning_type is not None:
+            df_original = st.session_state.processed_df.copy()
             
-        elif cleaning_type == "Change data":
-            if st.button("Convert"):
-                label_encoders = {}
-                for column in selected_columns:
-                    le = LabelEncoder()
-                    df[column] = le.fit_transform(df[column])
-                    label_encoders[column] = le
-                    st.write(f"Converted columns {column}")
-                
-                st.session_state.processed_df = df
-                    
+            if cleaning_type == "Handling missing values":           
+                action = st.radio("Select Action:", ["Delete null data", "Take the average values"])
 
+                # Confirm action
+                if st.button("Confirm"):
+                    if action == "Delete null data":
+                        df_original.dropna(subset=selected_columns, inplace=True)
+                        st.write("Delete null data success", selected_columns)
+                    elif action == "Take the average values":
+                        for column in selected_columns:
+                            mean_value = df_original[column].mean()
+                            st.write(f"Giá trị trung bình của cột {column}: {mean_value}")
+            
+                    # Select column
+            elif cleaning_type == "Remove columns":
+                if st.button("Confirm"):
+                    df_original.drop(columns=selected_columns, inplace=True)
+                    st.write("Column deleted successfully", selected_columns)
+                
+            elif cleaning_type == "Change data":
+                if st.button("Convert"):
+                    label_encoders = {}
+                    for column in selected_columns:
+                        le = LabelEncoder()
+                        df_original[column] = le.fit_transform(df_original[column])
+                        label_encoders[column] = le
+                        st.write(f"Converted columns {column}")
+                    
+            st.session_state.processed_df = df_original
+            
