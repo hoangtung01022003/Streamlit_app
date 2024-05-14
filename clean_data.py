@@ -14,31 +14,9 @@ from sklearn.preprocessing import LabelEncoder
 def load_csv(file, encoding='utf-8'):
     df = pd.read_csv(file, encoding=encoding)
     return df
-
-# def select_columns(df):
-#     if 'df' not in st.session_state:
-#         st.warning("Hãy tải dữ liệu trước khi thực hiện thao tác này.")
-#         return
-
-#     df = st.session_state.df
-#     # Select column
-#     selected_column = st.selectbox("Select Column:", df.columns)
-    
-#     # Confirm action
-#     if st.button("Xác nhận"):
-#         action = st.radio("Select Action:", ["Xoá", "Lấy giá trị trung bình"])
-        
-#         if action == "Xoá":
-#             df.drop(columns=[selected_column], inplace=True)
-#             st.write("Đã xoá cột", selected_column)
-#         elif action == "Lấy giá trị trung bình":
-#             mean_value = df[selected_column].mean()
-#             st.write(f"Giá trị trung bình của cột {selected_column}: {mean_value}")
-
+#
 def process_data(df, target_column):
-    # Process your data here
-    target_data = df[target_column]  # Select the target column
-    
+    target_data = df[target_column]  
     return target_data
 # Function save data
 def save_data_clean(bin_file, file_label='File', button_label='Download'):
@@ -104,7 +82,7 @@ def app():
                     elif action == "Take the average values":
                         for column in selected_columns:
                             mean_value = df_original[column].mean()
-                            st.write(f"Giá trị trung bình của cột {column}: {mean_value}")
+                            st.write(f"Average value of the column {column}: {mean_value}")
             
                     # Select column
             elif cleaning_type == "Remove columns":
