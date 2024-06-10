@@ -15,11 +15,8 @@ def load_csv(file, encoding='utf-8'):
     df = pd.read_csv(file, encoding=encoding)
     return df
 
-
 def process_data(df, target_column):
-    # Process your data here
-    target_data = df[target_column]  # Select the target column
-    
+    target_data = df[target_column]  
     return target_data
 # Function save data
 def save_data_clean(bin_file, file_label='File', button_label='Download'):
@@ -34,8 +31,7 @@ def select_columns(df):
     selected_columns = st.multiselect("Select columns:", df.columns)
     return selected_columns
 
-
-def app():
+def clean_data():
     st.title("CSV Uploader and Column Selector")
     st.write("Upload your CSV file:")
     uploaded_file = st.file_uploader("Choose a CSV file", type=['csv'])
@@ -49,10 +45,10 @@ def app():
             df.to_csv(temp_file.name, index=False)
 
             # Create a link to download the CSV file
-            st.markdown(save_data_clean(temp_file.name, 'Download processed data'), unsafe_allow_html=True)
+            # st.markdown(save_data_clean(temp_file.name, 'Download processed data'), unsafe_allow_html=True)
 
             # Delete the temporary file after download link is created
-            temp_file.close()
+            # temp_file.close()
             total_rows = st.session_state.processed_df.shape[0]
             st.write(f"Total quantity of rows: {total_rows}")
             null_counts = st.session_state.processed_df.isnull().sum()
