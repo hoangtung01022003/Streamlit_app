@@ -8,10 +8,15 @@ from streamlit_option_menu import option_menu
 import training.linear_regression as train_linear
 import training.decision_tree as train_tree
 import training.random_forest as train_random
+import training.logistic_regression as train_logistic
+import training.KNN as train_KNN
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.tree import plot_tree
 import matplotlib.pyplot as plt
 import seaborn as sns # statistical data visualization
+from scipy.special import expit
+from matplotlib.colors import ListedColormap
+from sklearn.neighbors import KNeighborsClassifier
 
 
 
@@ -75,7 +80,7 @@ def home():
 
         st.write("Processed feature data:")
         st.write(feature_data)
-        model_type = st.selectbox("Select Model Type:", ["Linear Regression", "Decision Tree", "Random Forest"])
+        model_type = st.selectbox("Select Model Type:", ["Linear Regression", "Logistic Regression", "Decision Tree", "Random Forest", "KNN"])
 
         # Train model
         if st.button("Train Model"):
@@ -87,7 +92,7 @@ def home():
                 st.write("R-squared:", r2)  
                 plt.figure(figsize=(10, 6))
                 plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
-                plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường đường chéo')
+                plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường chéo')
                 plt.xlabel('Thực tế')
                 plt.ylabel('Dự đoán')
                 plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
@@ -104,6 +109,32 @@ def home():
 
                 # Hiển thị biểu đồ trong ứng dụng Streamlit
                 st.pyplot(plt.gcf())
+
+            if model_type == "Logistic Regression":
+                model,mse, r2, X_test, y_test, y_pred= train_logistic.logistic_regression(df, target_columns, feature_columns)
+                st.write("Model trained successfully!")
+                st.write("Mean Squared Error:", mse)
+                st.write("R-squared:", r2)  
+                plt.figure(figsize=(10, 6))
+                plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
+                plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường chéo')
+                plt.xlabel('Thực tế')
+                plt.ylabel('Dự đoán')
+                plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
+                plt.legend()
+                st.pyplot(plt.gcf())
+                
+                # Vẽ biểu đồ histogram của sai số dự đoán
+                plt.figure(figsize=(10, 6))
+                errors = y_test - y_pred
+                plt.hist(errors, bins=20, color='green', alpha=0.7)
+                plt.xlabel('Sai số dự đoán')
+                plt.ylabel('Số lượng')
+                plt.title('Biểu đồ Histogram của Sai số dự đoán')
+
+                # Hiển thị biểu đồ trong ứng dụng Streamlit
+                st.pyplot(plt.gcf())
+
             if model_type == "Decision Tree":
                 model, cm,  mse, r2, X_test, y_test, y_pred = train_tree.decision_tree(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
@@ -113,6 +144,7 @@ def home():
                 disp = ConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap=plt.cm.Blues, normalize='true')
                 plt.title('Confusion Matrix')
                 st.pyplot(plt.gcf())
+                
             if model_type == "Random Forest":
                 model, X_test, y_test, y_pred, ass, feature_scores = train_random.RandomForestCF(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
@@ -123,3 +155,39 @@ def home():
                 # plt.ylabel('Features')
                 # plt.title("Visualizing Important Features")
                 # st.pyplot(plt.gcf())
+
+            if model_type == "KNN":
+                model, mse, r2, X_train, y_train, y_pred, X0, X1 = train_KNN.KNN(df, target_columns, feature_columns)
+                st.write("Model trained successfully!")
+                
+                cmap_light = ListedColormap(['orange', 'cyan', 'cornflowerblue'])
+                cmap_bold = ListedColormap(['darkorange', 'c', 'darkblue'])
+                h = .02  # step size in the mesh
+
+                # Plot the decision boundary. For that, we will assign a color to each
+                # point in the mesh [x_min, x_max]x[y_min, y_max].
+                x_min, x_max = X_train.loc[:, X0].values.min() - 1, X_train.loc[:, X0].values.max() + 1
+                y_min, y_max = X_train.loc[:, X1].values.min() - 1, X_train.loc[:, X1].values.max() + 1
+
+                xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                                    np.arange(y_min, y_max, h))
+
+                Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+
+                # Put the result into a color plot
+                Z = Z.reshape(xx.shape)
+                plt.figure()
+                plt.pcolormesh(xx, yy, Z, cmap=cmap_light, shading='nearest')
+
+                # Plot also the training points
+                plt.scatter(X_train.loc[:, X0].values,
+                            X_train.loc[:, X1].values,
+                            c=y_train,
+                            cmap=cmap_bold,
+                            edgecolor='k',
+                            s=20)
+                plt.xlim(xx.min(), xx.max())
+                plt.ylim(yy.min(), yy.max())
+                plt.title("3-Class classification (k = 5)")
+               
+                st.pyplot(plt.gcf())
