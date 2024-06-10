@@ -6,4 +6,4 @@ streamlit
 scikit-learn
 seaborn
 streamlit-option-menu
-dotenv
+category_encoders

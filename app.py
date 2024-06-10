@@ -27,14 +27,14 @@ class MultiApp:
         with st.sidebar:        
             app = option_menu(
                 menu_title='Pondering ',
-                options=['Home','Clean Data','Trending'],
+                options=['Home','Clean Data'],
                 default_index = 0,
                 )
 
         if app == "Home":
-            home.app()
+            home.home()
         if app == "Clean Data":
-            clean_data.app()    
+            clean_data.clean_data()    
         # if app == "Trending":
         #     trending.app()        
         # if app == 'Your Posts':
