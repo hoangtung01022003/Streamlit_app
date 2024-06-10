@@ -7,6 +7,7 @@ import numpy as np
 from streamlit_option_menu import option_menu
 import training.linear_regression as train_linear
 import training.decision_tree as train_tree
+
 import training.random_forest as train_random
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.tree import plot_tree
@@ -75,35 +76,35 @@ def home():
 
         st.write("Processed feature data:")
         st.write(feature_data)
-        model_type = st.selectbox("Select Model Type:", ["Linear Regression", "Decision Tree", "Random Forest"])
+        model_type = st.selectbox("Select Model Type:", ["Linear Regression", "Decision Tree", "Random Forest", "Logistic regression", "KNN"])
 
         # Train model
         if st.button("Train Model"):
             st.write("Training model...")
             if model_type == "Linear Regression":
-                model, mse, r2, X_test, y_test, y_pred = train_linear.linear_regression(df, target_columns, feature_columns)
+                reg, predictions, r2 = train_linear.linear_regression(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
-                st.write("Mean Squared Error:", mse)
+                # st.write("Mean Squared Error:", mse)
                 st.write("R-squared:", r2)  
-                plt.figure(figsize=(10, 6))
-                plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
-                plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường đường chéo')
-                plt.xlabel('Thực tế')
-                plt.ylabel('Dự đoán')
-                plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
-                plt.legend()
-                st.pyplot(plt.gcf())
+                # plt.figure(figsize=(10, 6))
+                # plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
+                # plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường đường chéo')
+                # plt.xlabel('Thực tế')
+                # plt.ylabel('Dự đoán')
+                # plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
+                # plt.legend()
+                # st.pyplot(plt.gcf())
 
                 # Vẽ biểu đồ histogram của sai số dự đoán
-                plt.figure(figsize=(10, 6))
-                errors = y_test - y_pred
-                plt.hist(errors, bins=20, color='green', alpha=0.7)
-                plt.xlabel('Sai số dự đoán')
-                plt.ylabel('Số lượng')
-                plt.title('Biểu đồ Histogram của Sai số dự đoán')
+                # plt.figure(figsize=(10, 6))
+                # errors = y_test - y_pred
+                # plt.hist(errors, bins=20, color='green', alpha=0.7)
+                # plt.xlabel('Sai số dự đoán')
+                # plt.ylabel('Số lượng')
+                # plt.title('Biểu đồ Histogram của Sai số dự đoán')
 
-                # Hiển thị biểu đồ trong ứng dụng Streamlit
-                st.pyplot(plt.gcf())
+                # # Hiển thị biểu đồ trong ứng dụng Streamlit
+                # st.pyplot(plt.gcf())
             if model_type == "Decision Tree":
                 model, cm,  mse, r2, X_test, y_test, y_pred = train_tree.decision_tree(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
@@ -117,9 +118,10 @@ def home():
                 model, X_test, y_test, y_pred, ass, feature_scores = train_random.RandomForestCF(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
                 st.write('Model accuracy score with doors variable removed : {0:0.4f}'. format(ass))
-                # st.write(feature_scores)
-                # sns.barplot(x=feature_scores, y=feature_scores.index)
-                # plt.xlabel('Feature Importance Score')
-                # plt.ylabel('Features')
-                # plt.title("Visualizing Important Features")
-                # st.pyplot(plt.gcf())
+                st.write(feature_scores)
+                sns.barplot(x=feature_scores, y=feature_scores.index)
+                plt.xlabel('Feature Importance Score')
+                plt.ylabel('Features')
+                plt.title("Visualizing Important Features")
+                st.pyplot(plt.gcf())
+                train_random.plot_confusion_matrix(y_test, y_pred, classes=model.classes_)
