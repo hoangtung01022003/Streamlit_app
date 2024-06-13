@@ -23,7 +23,7 @@ def RandomForestCF (df, target_columns, feature_columns):
     model.fit(X_train, y_train)
     
     y_pred = model.predict(X_test)
-    ass = accuracy_score(y_test, y_pred)
+    
     feature_scores = pd.Series(model.feature_importances_, index=X_train.columns).sort_values(ascending=False)
     return  model, X_test, y_test, y_pred, ass, feature_scores
 
