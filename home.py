@@ -7,6 +7,7 @@ import training.random_forest as train_random
 import training.logistic_regression as train_logistic
 import training.KNN as train_KNN
 from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns # statistical data visualization
@@ -83,54 +84,66 @@ def home():
         if st.button("Train Model"):
             st.write("Training model...")
             if model_type == "Linear Regression":
-                model, mse, r2, X_test, y_test, y_pred = train_linear.linear_regression(df, target_columns, feature_columns)
+                model, y_test,mse,  y_pred, r2 = train_linear.linear_regression(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
-                st.write("Mean Squared Error:", mse)
-                st.write("R-squared:", r2)  
-                plt.figure(figsize=(10, 6))
-                plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
-                plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường chéo')
-                plt.xlabel('Thực tế')
-                plt.ylabel('Dự đoán')
-                plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
-                plt.legend()
-                st.pyplot(plt.gcf())
+                # st.write("Mean Squared Error:", mse)
+                st.write("Độ chính xác: ", mse)  
+                # print(y_test)
+                # plt.figure(figsize=(10, 6))
+                # plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
+                # plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường chéo')
+                # plt.xlabel('Thực tế')
+                # plt.ylabel('Dự đoán')
+                # plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
+                # plt.legend()
+                # st.pyplot(plt.gcf())
 
                 # Vẽ biểu đồ histogram của sai số dự đoán
                 plt.figure(figsize=(10, 6))
                 errors = y_test - y_pred
                 plt.hist(errors, bins=20, color='green', alpha=0.7)
-                plt.xlabel('Sai số dự đoán')
-                plt.ylabel('Số lượng')
-                plt.title('Biểu đồ Histogram của Sai số dự đoán')
+                plt.xlabel('Thực tế')
+                plt.ylabel('Dự đoán')
+                plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
 
-                # Hiển thị biểu đồ trong ứng dụng Streamlit
-                st.pyplot(plt.gcf())
+                
 
             if model_type == "Logistic Regression":
                 model,mse, r2, X_test, y_test, y_pred= train_logistic.logistic_regression(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
                 st.write("Mean Squared Error:", mse)
                 st.write("R-squared:", r2)  
-                plt.figure(figsize=(10, 6))
-                plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
-                plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường chéo')
-                plt.xlabel('Thực tế')
-                plt.ylabel('Dự đoán')
-                plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
-                plt.legend()
-                st.pyplot(plt.gcf())
-                
-                # Vẽ biểu đồ histogram của sai số dự đoán
-                plt.figure(figsize=(10, 6))
-                errors = y_test - y_pred
-                plt.hist(errors, bins=20, color='green', alpha=0.7)
-                plt.xlabel('Sai số dự đoán')
-                plt.ylabel('Số lượng')
-                plt.title('Biểu đồ Histogram của Sai số dự đoán')
+                fig, ax = plt.subplots(1, 2, figsize=(18, 4))
+
+                sns.kdeplot(X_test, ax=ax[0], color='r', fill=True)
+                ax[0].set_title('Distribution of Transaction Amount', fontsize=14)
+                ax[0].set_xlim([min(X_test), max(X_test)])
+
+                sns.kdeplot(y_pred, ax=ax[1], color='b', fill=True)
+                ax[1].set_title('Distribution of Transaction Time', fontsize=14)
+                ax[1].set_xlim([min(y_pred), max(y_pred)])
 
                 # Hiển thị biểu đồ trong ứng dụng Streamlit
                 st.pyplot(plt.gcf())
+                # plt.figure(figsize=(10, 6))
+                # plt.scatter(y_test, y_pred, color='blue', label='Thực tế vs. Dự đoán')
+                # plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red', label='Đường chéo')
+                # plt.xlabel('Thực tế')
+                # plt.ylabel('Dự đoán')
+                # plt.title('Biểu đồ Scatter giữa Thực tế và Dự đoán')
+                # plt.legend()
+                # st.pyplot(plt.gcf())
+                
+                # # Vẽ biểu đồ histogram của sai số dự đoán
+                # plt.figure(figsize=(10, 6))
+                # errors = y_test - y_pred
+                # plt.hist(errors, bins=20, color='green', alpha=0.7)
+                # plt.xlabel('Sai số dự đoán')
+                # plt.ylabel('Số lượng')
+                # plt.title('Biểu đồ Histogram của Sai số dự đoán')
+
+                # # Hiển thị biểu đồ trong ứng dụng Streamlit
+                # st.pyplot(plt.gcf())
 
             if model_type == "Decision Tree":
                 model, cm,  mse, r2, X_test, y_test, y_pred = train_tree.decision_tree(df, target_columns, feature_columns)
@@ -141,7 +154,10 @@ def home():
                 disp = ConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap=plt.cm.Blues, normalize='true')
                 plt.title('Confusion Matrix')
                 st.pyplot(plt.gcf())
-                
+                # plt.figure(figsize=(20, 10))
+                # plot_tree(model, feature_names=feature_columns, class_names=model.classes_, filled=True)
+                # plt.title('Decision Tree')
+                # st.pyplot(plt.gcf())
             if model_type == "Random Forest":
                 model, X_test, y_test, y_pred, ass, feature_scores = train_random.RandomForestCF(df, target_columns, feature_columns)
                 st.write("Model trained successfully!")
@@ -152,6 +168,7 @@ def home():
                 plt.ylabel('Features')
                 plt.title("Visualizing Important Features")
                 st.pyplot(plt.gcf())
+                train_random.plot_confusion_matrix(y_test, y_pred, classes=model.classes_)
 
             if model_type == "KNN":
                 k_values = [1, 2, 5, 10, 20, 50]
