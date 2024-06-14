@@ -21,7 +21,7 @@ def RandomForestCF (df, target_columns, feature_columns):
     X_test = encoder.transform(X_test)
     model = RandomForestClassifier(n_estimators=1000, random_state=0)
     model.fit(X_train, y_train)
-    
+    ass = accuracy_score(y_test, y_pred)
     y_pred = model.predict(X_test)
     
     feature_scores = pd.Series(model.feature_importances_, index=X_train.columns).sort_values(ascending=False)
